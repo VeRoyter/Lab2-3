@@ -1,0 +1,246 @@
+{% import 'main/macros.html' as ui %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #E50914;
+            --dark: #141414;
+            --gray: #f5f5f5;
+            --text-main: #333;
+            --text-light: #666;
+            --border: #e0e0e0;
+        }
+
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--gray); 
+            margin: 0; 
+            color: var(--text-main);
+        }
+
+        .navbar { 
+            background-color: #fff; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            padding: 0 20px; 
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-link { 
+            display: inline-block;
+            padding: 20px 25px; 
+            text-decoration: none; 
+            color: var(--text-light); 
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover { color: var(--primary); }
+        .nav-link.active { 
+            color: var(--primary); 
+            border-bottom: 3px solid var(--primary); 
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 30px auto; 
+            padding: 0 15px; 
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 { margin: 0; font-weight: 400; color: var(--dark); }
+
+        .card-body { padding: 0; }
+
+        .flat-table { width: 100%; border-collapse: collapse; }
+        
+        .flat-table th { 
+            text-align: left; 
+            padding: 15px 30px; 
+            background-color: #fafafa;
+            color: var(--text-light);
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .flat-table td { 
+            padding: 15px 30px; 
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .flat-table tr:last-child td { border-bottom: none; }
+        .flat-table tr:hover { background-color: #fcfcfc; }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .page-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+            margin: 0 10px;
+        }
+
+        .page-btn:hover:not(.disabled) { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+        .page-btn.disabled { color: #ccc; cursor: default; border-color: #eee; }
+
+        .page-jump-form { display: flex; align-items: center; gap: 10px; }
+        .page-info { font-size: 14px; color: var(--text-light); }
+        
+        .page-input {
+            width: 50px;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .go-btn {
+            background-color: var(--dark);
+            color: #fff;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .go-btn:hover { background-color: var(--primary); }
+
+        .stats-table-wrapper { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <!-- Старое -->
+        <a href="?tab=shows" class="nav-link {{ 'active' if active_tab == 'shows' else '' }}">Фильмы</a>
+        <a href="?tab=actors" class="nav-link {{ 'active' if active_tab == 'actors' else '' }}">Актеры</a>
+        <a href="?tab=directors" class="nav-link {{ 'active' if active_tab == 'directors' else '' }}">Режиссеры</a>
+        <a href="?tab=countries" class="nav-link {{ 'active' if active_tab == 'countries' else '' }}">Страны</a>
+        <a href="?tab=stats" class="nav-link {{ 'active' if active_tab == 'stats' else '' }}">Статистика</a>
+        <!-- Новое) -->
+        <a href="{{ url('add_show') }}" class="nav-link" style="color: #27ae60;">+ Добавить</a>
+    </nav>
+
+    <div class="container">
+        
+        {% if active_tab == 'stats' %}
+            <div class="card">
+                <div class="card-header">
+                    <h3>{{ table_title }}</h3>
+                </div>
+                <div class="card-body">
+                    <table class="flat-table">
+                        <thead>
+                            <tr>
+                                <th>Страна</th>
+                                <th>Количество тайтлов</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in stats %}
+                            <tr>
+                                <td>{{ row.country__country_name }}</td>
+                                <td><strong>{{ row.total }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% else %}
+            
+            {% call(row) ui.data_table(table_title, columns, page_obj) %}
+                
+                {% if active_tab == 'shows' %}
+                    <td>{{ row.show_id }}</td>
+                    <td><strong style="color: #333;">{{ row.title }}</strong></td>
+                    <td>
+                        <!-- <span style="padding: 4px 8px; border-radius: 4px; background: {{ badge_color }}; color: white; font-size: 10px; font-weight: bold;"> -->
+                            {{ row.type }}
+                        </span>
+                    </td>
+                    <td>{{ row.release_year }}</td>
+                    <td>{{ row.rating }}</td>
+
+                    <td>
+                        {% for cast in row.countriescast_set.all() %}
+                            <span style="font-size: 11px; color: #555; background: #eee; padding: 2px 5px; border-radius: 3px; margin-right: 3px; display: inline-block; margin-bottom: 2px;">
+                                {{ cast.country.country_name }}
+                            </span>
+                        {% else %}
+                            <span style="color: #999; font-size: 11px;">—</span>
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <a href="{{ url('edit_show', args=[row.show_id]) }}" style="text-decoration: none; color: #2980b9; margin-right: 10px;">✏️</a>
+                        <a href="{{ url('delete_show', args=[row.show_id]) }}" style="text-decoration: none; color: #c0392b;">🗑️</a>
+                    </td>
+                {% elif active_tab == 'actors' %}
+                    <td style="width: 80px; color: #999;">#{{ row.actor_id }}</td>
+                    <td>{{ row.actor_name }}</td>
+
+                {% elif active_tab == 'directors' %}
+                    <td style="width: 80px; color: #999;">#{{ row.director_id }}</td>
+                    <td>{{ row.director_name }}</td>
+
+                {% elif active_tab == 'countries' %}
+                    <td style="width: 80px; color: #999;">#{{ row.country_id }}</td>
+                    <td>{{ row.country_name }}</td>
+                
+                {% endif %}
+
+            {% endcall %}
+
+            {{ ui.pagination(page_obj, active_tab) }}
+
+        {% endif %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+{% macro data_table(title, columns, rows, empty_msg="Нет данных") %}
+<div class="card">
+    <div class="card-header">
+        <h3>{{ title }}</h3>
+    </div>
+    <div class="card-body">
+        {% if rows %}
+        <table class="flat-table">
+            <thead>
+                <tr>
+                    {% for col in columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {{ caller(row) }}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-msg">{{ empty_msg }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro pagination(page_obj, active_tab) %}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <div class="pagination-container">
+        
+        {# Кнопка "Назад" #}
+        {% if page_obj.has_previous() %}
+            <a href="?tab={{ active_tab }}&page={{ page_obj.previous_page_number() }}" class="page-btn">‹ Назад</a>
+        {% else %}
+            <span class="page-btn disabled">‹ Назад</span>
+        {% endif %}
+
+        {# Форма перехода на страницу #}
+        <form action="" method="get" class="page-jump-form">
+            <input type="hidden" name="tab" value="{{ active_tab }}">
+            <span class="page-info">Стр.</span>
+            <input type="number" name="page" 
+                   min="1" max="{{ page_obj.paginator.num_pages }}" 
+                   value="{{ page_obj.number }}" class="page-input">
+            <span class="page-info">из {{ page_obj.paginator.num_pages }}</span>
+            <button type="submit" class="go-btn">Go</button>
+        </form>
+
+        {# Кнопка "Вперед" #}
+        {% if page_obj.has_next() %}
+            <a href="?tab={{ active_tab }}&page={{ page_obj.next_page_number() }}" class="page-btn">Вперед ›</a>
+        {% else %}
+            <span class="page-btn disabled">Вперед ›</span>
+        {% endif %}
+        
+    </div>
+    {% endif %}
+{% endmacro %}
